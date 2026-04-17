@@ -72,10 +72,86 @@
 
         .subtitle {
             color: #666;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-size: 1rem;
         }
 
+        /* Settings panel */
+        .settings-panel {
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .settings-panel summary {
+            padding: 10px 16px;
+            background: #f9f9f9;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: #555;
+            user-select: none;
+            list-style: none;
+        }
+
+        .settings-panel summary::-webkit-details-marker { display: none; }
+
+        .settings-panel[open] summary {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .settings-inner {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .settings-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .settings-row .sfield {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .settings-row label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #333;
+            font-size: 0.88rem;
+        }
+
+        .settings-row input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .settings-row input:focus {
+            outline: none;
+            border-color: #006BB6;
+        }
+
+        .config-summary {
+            font-size: 0.83rem;
+            color: #555;
+            padding: 6px 10px;
+            background: #f0f7fc;
+            border-radius: 4px;
+        }
+
+        /* Main controls */
         .controls {
             display: flex;
             gap: 15px;
@@ -200,7 +276,6 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Scroll indicators - subtle shadows on left/right */
         .seating-area::before,
         .seating-area::after {
             content: '';
@@ -228,13 +303,8 @@
             background: linear-gradient(to left, rgba(0, 0, 0, 0.15), transparent);
         }
 
-        .seating-area.show-left-shadow::before {
-            opacity: 1;
-        }
-
-        .seating-area.show-right-shadow::after {
-            opacity: 1;
-        }
+        .seating-area.show-left-shadow::before { opacity: 1; }
+        .seating-area.show-right-shadow::after { opacity: 1; }
 
         .row {
             display: flex;
@@ -287,7 +357,7 @@
 
         .chair:hover {
             transform: scale(1.08);
-            box-shadow: 0 3px 10px rgba(176, 0, 142, 0.4);
+            box-shadow: 0 3px 10px rgba(0, 107, 182, 0.35);
         }
 
         .summary {
@@ -304,155 +374,47 @@
             font-weight: 600;
         }
 
-        /* Mobile-specific improvements */
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            .app-container {
-                padding: 15px;
-            }
-
-            h1 {
-                font-size: 1.4rem;
-            }
-
-            .subtitle {
-                font-size: 0.9rem;
-            }
-
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-            }
-
-            .form-group {
-                width: 100%;
-            }
-
-            input[type="number"] {
-                width: 100%;
-            }
-
-            button {
-                width: 100%;
-                padding: 12px;
-            }
-
-            .legend {
-                flex-direction: column;
-                gap: 10px;
-                padding: 12px;
-            }
-
-            .legend-item {
-                font-size: 0.85rem;
-            }
-
-            .legend-box {
-                width: 35px;
-                height: 35px;
-                flex-shrink: 0;
-            }
-
-            .seating-area {
-                padding: 10px;
-            }
-
-            .row {
-                justify-content: flex-start;
-            }
-
-            .row-label {
-                min-width: 50px;
-                font-size: 0.8rem;
-            }
-
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-
-            .room-label {
-                font-size: 1rem;
-                padding: 8px;
-            }
-
-            .summary {
-                font-size: 0.9rem;
-                padding: 12px 15px;
-            }
+            body { padding: 10px; }
+            .app-container { padding: 15px; }
+            h1 { font-size: 1.4rem; }
+            .subtitle { font-size: 0.9rem; }
+            .controls { flex-direction: column; align-items: stretch; gap: 10px; }
+            .form-group { width: 100%; }
+            input[type="number"] { width: 100%; }
+            button { width: 100%; padding: 12px; }
+            .legend { flex-direction: column; gap: 10px; padding: 12px; }
+            .legend-item { font-size: 0.85rem; }
+            .legend-box { width: 35px; height: 35px; flex-shrink: 0; }
+            .seating-area { padding: 10px; }
+            .row { justify-content: flex-start; }
+            .row-label { min-width: 50px; font-size: 0.8rem; }
+            .header { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .room-label { font-size: 1rem; padding: 8px; }
+            .summary { font-size: 0.9rem; padding: 12px 15px; }
+            .settings-row { flex-direction: column; }
+            .settings-row button { width: 100%; }
         }
 
-        /* Portrait mode - allow some scrolling with indicators */
         @media (max-width: 768px) and (orientation: portrait) {
-            .row {
-                gap: 5px;
-            }
-            
-            .chair {
-                width: 38px;
-                height: 38px;
-                font-size: 0.75rem;
-            }
-            
-            .table-group {
-                gap: 5px;
-            }
-
-            .table-group + .table-group {
-                margin-left: 10px;
-            }
+            .row { gap: 5px; }
+            .chair { width: 38px; height: 38px; font-size: 0.75rem; }
+            .table-group { gap: 5px; }
+            .table-group + .table-group { margin-left: 10px; }
         }
 
-        /* Landscape mode - fit everything on screen without scrolling */
         @media (max-width: 1024px) and (orientation: landscape) {
-            .seating-area {
-                padding: 10px 15px;
-                overflow-x: visible;
-            }
-
-            .row {
-                gap: 3px;
-                justify-content: flex-start;
-            }
-            
-            .chair {
-                width: 35px;
-                height: 35px;
-                font-size: 0.7rem;
-                border-width: 1.5px;
-            }
-            
-            .table-group {
-                gap: 3px;
-            }
-
-            .table-group + .table-group {
-                margin-left: 6px;
-            }
-
-            .row-label {
-                min-width: 40px;
-                font-size: 0.7rem;
-            }
-
-            /* Hide scroll shadows in landscape since no scrolling needed */
-            .seating-area::before,
-            .seating-area::after {
-                display: none;
-            }
+            .seating-area { padding: 10px 15px; overflow-x: visible; }
+            .row { gap: 3px; justify-content: flex-start; }
+            .chair { width: 35px; height: 35px; font-size: 0.7rem; border-width: 1.5px; }
+            .table-group { gap: 3px; }
+            .table-group + .table-group { margin-left: 6px; }
+            .row-label { min-width: 40px; font-size: 0.7rem; }
+            .seating-area::before, .seating-area::after { display: none; }
         }
 
-        /* Larger landscape screens */
         @media (min-width: 1025px) and (orientation: landscape) {
-            .chair {
-                width: 52px;
-                height: 52px;
-            }
+            .chair { width: 52px; height: 52px; }
         }
     </style>
 </head>
@@ -465,14 +427,32 @@
                 </div>
                 <a href="../index.html" class="back-button">← Back to Home</a>
             </div>
-            
+
             <h1>Orientation Bag Tracker</h1>
             <p class="subtitle">Day One Orientation Seating Management</p>
+
+            <details class="settings-panel">
+                <summary>⚙ Configure Room Layout</summary>
+                <div class="settings-inner">
+                    <div class="settings-row">
+                        <div class="sfield">
+                            <label for="cfgRows">Number of rows</label>
+                            <input type="number" id="cfgRows" min="1" max="30" value="6">
+                        </div>
+                        <div class="sfield">
+                            <label for="cfgLayout">Chair groups per row (comma-separated)</label>
+                            <input type="text" id="cfgLayout" placeholder="e.g. 6,6,6">
+                        </div>
+                        <button onclick="applyConfig()">Apply Layout</button>
+                    </div>
+                    <p class="config-summary" id="configSummary"></p>
+                </div>
+            </details>
 
             <div class="controls">
                 <div class="form-group">
                     <label for="numTMs">Number of Team Members:</label>
-                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="numTMs" min="1" max="108" placeholder="Enter number">
+                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="numTMs" min="1" placeholder="Enter number">
                 </div>
                 <button onclick="placeBags()">Place Bags</button>
                 <button class="reset" onclick="resetAll()">Reset All</button>
@@ -497,7 +477,7 @@
             <div class="seating-area" id="seatingArea"></div>
 
             <div class="summary" id="summary" style="display: none;">
-                <strong>Bags Placed:</strong> <span id="bagCount">0</span> / 108 chairs
+                <strong>Bags Placed:</strong> <span id="bagCount">0</span> / <span id="totalCount">0</span> chairs
             </div>
         </div>
     </div>
@@ -506,121 +486,93 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script>
-        // Hide logo if it doesn't exist
-        document.getElementById('logo').onerror = function() {
-            this.style.display = 'none';
-        };
+        document.getElementById('logo').onerror = function() { this.style.display = 'none'; };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const myClientId = Date.now().toString(36) + Math.random().toString(36).substr(2);
 
+        // Layout state - defaults to 6-6-6
+        let rows = 6;
+        let layout = [6, 6, 6];
+        let totalChairs = 108;
+        let chairStates = new Array(108).fill(false);
+        let fillPriority = [];
+
+        function chairsPerRow() {
+            return layout.reduce((a, b) => a + b, 0);
+        }
+
+        // Center-out fill priority for any layout
+        function generateFillPriority(r, l) {
+            const cpr = l.reduce((a, b) => a + b, 0);
+            const priority = [];
+
+            for (let row = 0; row < r; row++) {
+                const rowStart = row * cpr;
+                const lo = Math.floor((cpr - 1) / 2);
+                const hi = lo + (cpr % 2 === 0 ? 1 : 0);
+
+                priority.push(rowStart + lo);
+                if (lo !== hi) priority.push(rowStart + hi);
+
+                for (let d = 1; lo - d >= 0 || hi + d < cpr; d++) {
+                    if (lo - d >= 0) priority.push(rowStart + lo - d);
+                    if (hi + d < cpr) priority.push(rowStart + hi + d);
+                }
+            }
+
+            return priority;
+        }
+
         function saveToFirestore() {
             db.collection('bag-tracker').doc('current').set({
-                chairStates: chairStates,
+                rows,
+                layout,
+                chairStates,
                 lastClientId: myClientId
             });
         }
 
-        const LAYOUT = [4, 4, 2, 4, 4];
-        const ROWS = 6;
-        const TOTAL_CHAIRS = 108;
-
-        // New fill priority: Row by row, center out, keeping pairs together
-        function generateFillPriority() {
-            const priority = [];
-            
-            // Process rows 1-5 first
-            for (let row = 0; row < 5; row++) {
-                const rowStart = row * 18;
-                
-                // Fill 4-2-4 middle section first (chairs 4-13 in each row)
-                // Center pair first: 9, 10 (adjusted to row)
-                priority.push(rowStart + 8, rowStart + 9);
-                
-                // Expand outward in pairs
-                priority.push(rowStart + 7, rowStart + 10);
-                priority.push(rowStart + 6, rowStart + 11);
-                priority.push(rowStart + 5, rowStart + 12);
-                priority.push(rowStart + 4, rowStart + 13);
-                
-                // Then outer pairs (leaving rightmost two columns for later)
-                priority.push(rowStart + 3, rowStart + 2);
-                priority.push(rowStart + 14, rowStart + 15);
-                priority.push(rowStart + 1, rowStart + 0);
-            }
-            
-            // Now fill the two rightmost columns for rows 1-5
-            for (let row = 0; row < 5; row++) {
-                const rowStart = row * 18;
-                priority.push(rowStart + 16, rowStart + 17);
-            }
-            
-            // Finally, fill back row (row 6, chairs 90-107)
-            const backRowStart = 5 * 18;
-            
-            // Center pair
-            priority.push(backRowStart + 8, backRowStart + 9);
-            
-            // Expand outward in pairs
-            priority.push(backRowStart + 7, backRowStart + 10);
-            priority.push(backRowStart + 6, backRowStart + 11);
-            priority.push(backRowStart + 5, backRowStart + 12);
-            priority.push(backRowStart + 4, backRowStart + 13);
-            
-            // Outer pairs
-            priority.push(backRowStart + 3, backRowStart + 2);
-            priority.push(backRowStart + 14, backRowStart + 15);
-            priority.push(backRowStart + 1, backRowStart + 0);
-            priority.push(backRowStart + 16, backRowStart + 17);
-            
-            return priority;
-        }
-
-        const fillPriority = generateFillPriority();
-        let chairStates = new Array(TOTAL_CHAIRS).fill(false);
-
         function createSeatingLayout() {
             const seatingArea = document.getElementById('seatingArea');
             seatingArea.innerHTML = '';
-            
+
             let chairNumber = 0;
-            
-            for (let row = 0; row < ROWS; row++) {
+
+            for (let row = 0; row < rows; row++) {
                 const rowDiv = document.createElement('div');
                 rowDiv.className = 'row';
-                
+
                 const rowLabel = document.createElement('div');
                 rowLabel.className = 'row-label';
                 rowLabel.textContent = `Row ${row + 1}`;
                 rowDiv.appendChild(rowLabel);
-                
-                LAYOUT.forEach((tableSize, tableIndex) => {
+
+                layout.forEach(tableSize => {
                     const tableGroup = document.createElement('div');
                     tableGroup.className = 'table-group';
-                    
+
                     for (let seat = 0; seat < tableSize; seat++) {
                         const chair = document.createElement('div');
                         chair.className = 'chair';
                         chair.dataset.chairNum = chairNumber;
                         chair.textContent = chairNumber + 1;
-                        
+
                         chair.addEventListener('click', (function(num) {
-                            return function() {
-                                toggleChair(num);
-                            };
+                            return function() { toggleChair(num); };
                         })(chairNumber));
-                        
+
                         tableGroup.appendChild(chair);
                         chairNumber++;
                     }
-                    
+
                     rowDiv.appendChild(tableGroup);
                 });
-                
+
                 seatingArea.appendChild(rowDiv);
             }
-            
+
             updateDisplay();
         }
 
@@ -632,14 +584,12 @@
 
         function placeBags() {
             const numTMs = parseInt(document.getElementById('numTMs').value);
-            
-            if (!numTMs || numTMs < 1 || numTMs > 108) {
-                alert('Please enter a valid number between 1 and 108');
+            if (!numTMs || numTMs < 1 || numTMs > totalChairs) {
+                alert(`Please enter a number between 1 and ${totalChairs}`);
                 return;
             }
-            
-            chairStates.fill(false);
-            
+
+            chairStates = new Array(totalChairs).fill(false);
             for (let i = 0; i < numTMs && i < fillPriority.length; i++) {
                 chairStates[fillPriority[i]] = true;
             }
@@ -649,75 +599,105 @@
         }
 
         function resetAll() {
-            chairStates.fill(false);
+            chairStates = new Array(totalChairs).fill(false);
             document.getElementById('numTMs').value = '';
             updateDisplay();
             saveToFirestore();
         }
 
         function updateDisplay() {
-            for (let i = 0; i < TOTAL_CHAIRS; i++) {
+            for (let i = 0; i < totalChairs; i++) {
                 const chair = document.querySelector(`[data-chair-num="${i}"]`);
                 if (chair) {
-                    if (chairStates[i]) {
-                        chair.classList.add('filled');
-                    } else {
-                        chair.classList.remove('filled');
-                    }
+                    chair.classList.toggle('filled', !!chairStates[i]);
                 }
             }
-            
-            const bagCount = chairStates.filter(state => state).length;
+            const bagCount = chairStates.filter(Boolean).length;
             document.getElementById('bagCount').textContent = bagCount;
+            document.getElementById('totalCount').textContent = totalChairs;
             document.getElementById('summary').style.display = 'block';
         }
 
+        function updateConfigUI() {
+            document.getElementById('cfgRows').value = rows;
+            document.getElementById('cfgLayout').value = layout.join(',');
+            const cpr = chairsPerRow();
+            document.getElementById('configSummary').textContent =
+                `${rows} rows · ${layout.join('-')} chairs per row · ${totalChairs} chairs total`;
+        }
+
+        function applyConfig() {
+            const newRows = parseInt(document.getElementById('cfgRows').value);
+            const rawLayout = document.getElementById('cfgLayout').value;
+            const newLayout = rawLayout.split(',').map(s => parseInt(s.trim())).filter(n => n > 0);
+
+            if (!newRows || newRows < 1 || newRows > 30) {
+                alert('Rows must be between 1 and 30.');
+                return;
+            }
+            if (newLayout.length === 0) {
+                alert('Enter at least one chair group (e.g. 6,6,6).');
+                return;
+            }
+
+            const newTotal = newRows * newLayout.reduce((a, b) => a + b, 0);
+            if (!confirm(`Apply new layout? ${newRows} rows · ${newLayout.join('-')} chairs per row · ${newTotal} chairs total.\n\nThis will reset all current bag placements.`)) return;
+
+            rows = newRows;
+            layout = newLayout;
+            totalChairs = newTotal;
+            chairStates = new Array(totalChairs).fill(false);
+            fillPriority = generateFillPriority(rows, layout);
+
+            updateConfigUI();
+            createSeatingLayout();
+            saveToFirestore();
+        }
+
         window.addEventListener('load', () => {
+            // Initialize with defaults, then load from Firestore
+            fillPriority = generateFillPriority(rows, layout);
+            updateConfigUI();
             createSeatingLayout();
             setupScrollIndicators();
 
             db.collection('bag-tracker').doc('current').onSnapshot(snapshot => {
                 if (!snapshot.exists) return;
                 const data = snapshot.data();
-                if (data.lastClientId !== myClientId) {
-                    chairStates = data.chairStates;
+
+                const newRows = data.rows || rows;
+                const newLayout = data.layout || layout;
+                const layoutChanged =
+                    newRows !== rows ||
+                    JSON.stringify(newLayout) !== JSON.stringify(layout);
+
+                if (layoutChanged) {
+                    rows = newRows;
+                    layout = newLayout;
+                    totalChairs = rows * layout.reduce((a, b) => a + b, 0);
+                    fillPriority = generateFillPriority(rows, layout);
+                    chairStates = data.chairStates || new Array(totalChairs).fill(false);
+                    updateConfigUI();
+                    createSeatingLayout();
+                } else if (data.lastClientId !== myClientId) {
+                    chairStates = data.chairStates || new Array(totalChairs).fill(false);
                     updateDisplay();
                 }
             });
         });
 
-        // Setup scroll shadow indicators
         function setupScrollIndicators() {
             const seatingArea = document.getElementById('seatingArea');
-            
+
             function updateScrollShadows() {
                 const scrollLeft = seatingArea.scrollLeft;
-                const scrollWidth = seatingArea.scrollWidth;
-                const clientWidth = seatingArea.clientWidth;
-                const maxScroll = scrollWidth - clientWidth;
-                
-                // Show left shadow if scrolled right
-                if (scrollLeft > 10) {
-                    seatingArea.classList.add('show-left-shadow');
-                } else {
-                    seatingArea.classList.remove('show-left-shadow');
-                }
-                
-                // Show right shadow if not fully scrolled
-                if (scrollLeft < maxScroll - 10) {
-                    seatingArea.classList.add('show-right-shadow');
-                } else {
-                    seatingArea.classList.remove('show-right-shadow');
-                }
+                const maxScroll = seatingArea.scrollWidth - seatingArea.clientWidth;
+                seatingArea.classList.toggle('show-left-shadow', scrollLeft > 10);
+                seatingArea.classList.toggle('show-right-shadow', scrollLeft < maxScroll - 10);
             }
-            
-            // Update on scroll
+
             seatingArea.addEventListener('scroll', updateScrollShadows);
-            
-            // Update on resize
             window.addEventListener('resize', updateScrollShadows);
-            
-            // Initial update
             setTimeout(updateScrollShadows, 100);
         }
     </script>
