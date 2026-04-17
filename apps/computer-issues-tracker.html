@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Issues Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        .app-container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #006BB6;
+        }
+        .logo-container { max-width: 150px; }
+        .logo-container img { max-width: 100%; height: auto; }
+        .back-button { color: #006BB6; text-decoration: none; font-size: 0.95rem; font-weight: 500; }
+        .back-button:hover { text-decoration: underline; }
+        h1 { color: #006BB6; margin-bottom: 8px; font-size: 1.8rem; font-weight: 600; }
+        .subtitle { color: #666; margin-bottom: 25px; font-size: 1rem; }
+        .add-form {
+            background: #f0f7fc;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid #006BB6;
+        }
+        .add-form h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #333; }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; color: #333; font-size: 0.9rem; }
+        input[type="text"], input[type="date"], textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        input:focus, textarea:focus { outline: none; border-color: #006BB6; }
+        button.primary {
+            background: #006BB6;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button.primary:hover { background: #005a94; }
+        button.resolve {
+            background: #2a7a2a;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        button.resolve:hover { background: #1e5a1e; }
+        .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+        .tab {
+            background: #f0f0f0;
+            color: #666;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab.active { background: #006BB6; color: white; }
+        .tab:hover:not(.active) { background: #e0e0e0; }
+        .issues-list { display: flex; flex-direction: column; gap: 12px; }
+        .issue-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        .issue-card.open { border-left: 3px solid #D22630; }
+        .issue-card.resolved { border-left: 3px solid #2a7a2a; opacity: 0.7; }
+        .issue-main { flex: 1; }
+        .issue-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+        .computer-id { font-weight: 700; color: #006BB6; font-size: 1rem; }
+        .status-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+        .status-badge.open { background: #fde8e8; color: #D22630; }
+        .status-badge.resolved { background: #e8f5e8; color: #2a7a2a; }
+        .issue-desc { color: #333; margin-bottom: 8px; line-height: 1.5; }
+        .issue-meta { font-size: 0.85rem; color: #888; }
+        .empty-state { text-align: center; padding: 40px; color: #999; font-size: 1rem; }
+        .status-msg { font-size: 0.9rem; }
+        @media (max-width: 650px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full { grid-column: 1; }
+            .form-actions { grid-column: 1; }
+            .issue-card { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-container">
+            <div class="header">
+                <div class="logo-container">
+                    <img src="../images/ballad-logo.jpg" alt="Ballad Health" id="logo">
+                </div>
+                <a href="../index.html" class="back-button">← Back to Home</a>
+            </div>
+
+            <h1>Computer Issues Tracker</h1>
+            <p class="subtitle">Report and track computer issues in the department</p>
+
+            <div class="add-form">
+                <h2>Report an Issue</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="computerId">Computer ID</label>
+                        <input type="text" id="computerId" placeholder="e.g. WS-042">
+                    </div>
+                    <div class="form-group">
+                        <label for="reportedBy">Reported By</label>
+                        <input type="text" id="reportedBy" placeholder="Your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="dateReported">Date</label>
+                        <input type="date" id="dateReported">
+                    </div>
+                    <div class="form-group full">
+                        <label for="issueDesc">Description</label>
+                        <textarea id="issueDesc" placeholder="Describe the issue..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button class="primary" onclick="submitIssue()">Submit Issue</button>
+                        <span id="submitStatus" class="status-msg" style="display:none;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-tabs">
+                <button class="tab active" id="tab-all" onclick="setFilter('all', this)">All</button>
+                <button class="tab" id="tab-open" onclick="setFilter('open', this)">Open</button>
+                <button class="tab" id="tab-resolved" onclick="setFilter('resolved', this)">Resolved</button>
+            </div>
+
+            <div id="issuesList"><p class="empty-state">Loading...</p></div>
+        </div>
+    </div>
+
+    <script src="../firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script>
+        document.getElementById('logo').onerror = function() { this.parentElement.style.display = 'none'; };
+        document.getElementById('dateReported').value = new Date().toISOString().split('T')[0];
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let currentFilter = 'all';
+        let allIssues = [];
+
+        db.collection('computer-issues')
+            .orderBy('createdAt', 'desc')
+            .onSnapshot(snapshot => {
+                allIssues = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderIssues();
+            });
+
+        function setFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            renderIssues();
+        }
+
+        function renderIssues() {
+            const list = document.getElementById('issuesList');
+            const filtered = currentFilter === 'all' ? allIssues : allIssues.filter(i => i.status === currentFilter);
+            if (filtered.length === 0) {
+                list.innerHTML = '<p class="empty-state">No issues found.</p>';
+                return;
+            }
+            list.innerHTML = '<div class="issues-list">' + filtered.map(issue => `
+                <div class="issue-card ${issue.status}">
+                    <div class="issue-main">
+                        <div class="issue-header">
+                            <span class="computer-id">${escapeHtml(issue.computerId)}</span>
+                            <span class="status-badge ${issue.status}">${issue.status}</span>
+                        </div>
+                        <p class="issue-desc">${escapeHtml(issue.description)}</p>
+                        <p class="issue-meta">Reported by ${escapeHtml(issue.reportedBy)} · ${formatDate(issue.dateReported)}</p>
+                    </div>
+                    ${issue.status === 'open' ? `<button class="resolve" onclick="resolveIssue('${issue.id}')">Mark Resolved</button>` : ''}
+                </div>
+            `).join('') + '</div>';
+        }
+
+        function submitIssue() {
+            const computerId = document.getElementById('computerId').value.trim();
+            const description = document.getElementById('issueDesc').value.trim();
+            const reportedBy = document.getElementById('reportedBy').value.trim();
+            const dateReported = document.getElementById('dateReported').value;
+
+            if (!computerId || !description || !reportedBy || !dateReported) {
+                showStatus('Please fill in all fields.', 'error');
+                return;
+            }
+
+            db.collection('computer-issues').add({
+                computerId, description, reportedBy, dateReported,
+                status: 'open',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                resolvedAt: null
+            }).then(() => {
+                document.getElementById('computerId').value = '';
+                document.getElementById('issueDesc').value = '';
+                document.getElementById('reportedBy').value = '';
+                document.getElementById('dateReported').value = new Date().toISOString().split('T')[0];
+                showStatus('Issue submitted.', 'ok');
+            }).catch(err => showStatus('Error: ' + err.message, 'error'));
+        }
+
+        function resolveIssue(id) {
+            db.collection('computer-issues').doc(id).update({
+                status: 'resolved',
+                resolvedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        function showStatus(msg, type) {
+            const el = document.getElementById('submitStatus');
+            el.textContent = msg;
+            el.style.display = 'inline';
+            el.style.color = type === 'error' ? '#D22630' : '#2a7a2a';
+            setTimeout(() => { el.style.display = 'none'; }, 3000);
+        }
+
+        function formatDate(iso) { return iso ? iso.replace(/-/g, '.') : ''; }
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+    </script>
+</body>
+</html>

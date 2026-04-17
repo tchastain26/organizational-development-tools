@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catered Lunch Log</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .app-container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #006BB6;
+        }
+        .logo-container { max-width: 150px; }
+        .logo-container img { max-width: 100%; height: auto; }
+        .back-button { color: #006BB6; text-decoration: none; font-size: 0.95rem; font-weight: 500; }
+        .back-button:hover { text-decoration: underline; }
+        h1 { color: #006BB6; margin-bottom: 8px; font-size: 1.8rem; font-weight: 600; }
+        .subtitle { color: #666; margin-bottom: 25px; font-size: 1rem; }
+        .add-form {
+            background: #f0f7fc;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 4px solid #006BB6;
+        }
+        .add-form h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #333; }
+        .form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+        .form-group { flex: 1; min-width: 150px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; color: #333; font-size: 0.9rem; }
+        input[type="date"], input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        input:focus { outline: none; border-color: #006BB6; }
+        button {
+            background: #006BB6;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        button:hover { background: #005a94; }
+        .entry-list { display: flex; flex-direction: column; gap: 10px; }
+        .entry-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-left: 3px solid #006BB6;
+        }
+        .entry-date { font-weight: 600; color: #006BB6; font-size: 0.95rem; white-space: nowrap; min-width: 90px; }
+        .entry-what { color: #333; font-size: 1rem; flex: 1; }
+        .empty-state { text-align: center; padding: 40px; color: #999; font-size: 1rem; }
+        .status-msg { font-size: 0.9rem; margin-top: 8px; }
+        @media (max-width: 600px) {
+            .form-row { flex-direction: column; }
+            .form-group { min-width: 100%; }
+            button { width: 100%; }
+            .entry-card { flex-direction: column; align-items: flex-start; gap: 4px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-container">
+            <div class="header">
+                <div class="logo-container">
+                    <img src="../images/ballad-logo.jpg" alt="Ballad Health" id="logo">
+                </div>
+                <a href="../index.html" class="back-button">← Back to Home</a>
+            </div>
+
+            <h1>Catered Lunch Log</h1>
+            <p class="subtitle">Running log of team catered lunches</p>
+
+            <div class="add-form">
+                <h2>Add Entry</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="lunchDate">Date</label>
+                        <input type="date" id="lunchDate">
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label for="lunchWhat">What was served</label>
+                        <input type="text" id="lunchWhat" placeholder="e.g. Pizza from Marco's" maxlength="200">
+                    </div>
+                    <button onclick="addEntry()">Add Entry</button>
+                </div>
+                <div id="addStatus" class="status-msg" style="display:none;"></div>
+            </div>
+
+            <div id="entriesList"><p class="empty-state">Loading...</p></div>
+        </div>
+    </div>
+
+    <script src="../firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script>
+        document.getElementById('logo').onerror = function() { this.parentElement.style.display = 'none'; };
+        document.getElementById('lunchDate').value = new Date().toISOString().split('T')[0];
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function formatDate(iso) { return iso ? iso.replace(/-/g, '.') : ''; }
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        db.collection('catered-lunches')
+            .orderBy('date', 'desc')
+            .onSnapshot(snapshot => {
+                const list = document.getElementById('entriesList');
+                if (snapshot.empty) {
+                    list.innerHTML = '<p class="empty-state">No entries yet. Add one above.</p>';
+                    return;
+                }
+                list.innerHTML = '<div class="entry-list">' +
+                    snapshot.docs.map(doc => {
+                        const d = doc.data();
+                        return `<div class="entry-card">
+                            <span class="entry-date">${formatDate(d.date)}</span>
+                            <span class="entry-what">${escapeHtml(d.what)}</span>
+                        </div>`;
+                    }).join('') +
+                '</div>';
+            });
+
+        function addEntry() {
+            const date = document.getElementById('lunchDate').value;
+            const what = document.getElementById('lunchWhat').value.trim();
+            if (!date || !what) { showStatus('Please fill in both fields.', 'error'); return; }
+
+            db.collection('catered-lunches').add({
+                date,
+                what,
+                addedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                document.getElementById('lunchWhat').value = '';
+                showStatus('Entry added.', 'ok');
+            }).catch(err => showStatus('Error: ' + err.message, 'error'));
+        }
+
+        function showStatus(msg, type) {
+            const el = document.getElementById('addStatus');
+            el.textContent = msg;
+            el.style.display = 'block';
+            el.style.color = type === 'error' ? '#D22630' : '#2a7a2a';
+            setTimeout(() => { el.style.display = 'none'; }, 3000);
+        }
+
+        document.getElementById('lunchWhat').addEventListener('keydown', e => {
+            if (e.key === 'Enter') addEntry();
+        });
+    </script>
+</body>
+</html>

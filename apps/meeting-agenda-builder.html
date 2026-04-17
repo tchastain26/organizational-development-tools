@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Agenda Builder</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .app-container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #006BB6;
+        }
+        .logo-container { max-width: 150px; }
+        .logo-container img { max-width: 100%; height: auto; }
+        .back-button { color: #006BB6; text-decoration: none; font-size: 0.95rem; font-weight: 500; }
+        .back-button:hover { text-decoration: underline; }
+        h1 { color: #006BB6; margin-bottom: 8px; font-size: 1.8rem; font-weight: 600; }
+        .subtitle { color: #666; margin-bottom: 20px; font-size: 1rem; }
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 12px 20px;
+            background: #f0f7fc;
+            border-radius: 6px;
+        }
+        .month-nav button {
+            background: #006BB6;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .month-nav button:hover { background: #005a94; }
+        .month-label { font-size: 1.1rem; font-weight: 700; color: #006BB6; flex: 1; text-align: center; }
+        .add-form {
+            background: #f0f7fc;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid #006BB6;
+        }
+        .add-form h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #333; }
+        .form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+        .form-group { flex: 1; min-width: 150px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; color: #333; font-size: 0.9rem; }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        input:focus { outline: none; border-color: #006BB6; }
+        button.primary {
+            background: #006BB6;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        button.primary:hover { background: #005a94; }
+        .progress-bar {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+            padding: 8px 12px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            display: none;
+        }
+        .agenda-list { display: flex; flex-direction: column; gap: 8px; }
+        .agenda-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .agenda-item.done { opacity: 0.5; background: #f9f9f9; }
+        .agenda-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #006BB6;
+            flex-shrink: 0;
+        }
+        .item-text { flex: 1; font-size: 1rem; color: #333; line-height: 1.4; }
+        .item-text.done { text-decoration: line-through; color: #999; }
+        .item-meta { font-size: 0.8rem; color: #aaa; white-space: nowrap; }
+        .empty-state { text-align: center; padding: 40px; color: #999; font-size: 1rem; }
+        .status-msg { font-size: 0.9rem; margin-top: 8px; }
+        @media (max-width: 600px) {
+            .form-row { flex-direction: column; }
+            .form-group { min-width: 100%; }
+            button.primary { width: 100%; }
+            .item-meta { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-container">
+            <div class="header">
+                <div class="logo-container">
+                    <img src="../images/ballad-logo.jpg" alt="Ballad Health" id="logo">
+                </div>
+                <a href="../index.html" class="back-button">← Back to Home</a>
+            </div>
+
+            <h1>Meeting Agenda Builder</h1>
+            <p class="subtitle">Add items for the upcoming team meeting</p>
+
+            <div class="month-nav">
+                <button onclick="changeMonth(-1)">&#8249;</button>
+                <span class="month-label" id="monthLabel"></span>
+                <button onclick="changeMonth(1)">&#8250;</button>
+            </div>
+
+            <div class="add-form">
+                <h2>Add Agenda Item</h2>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 2;">
+                        <label for="agendaItem">Agenda item</label>
+                        <input type="text" id="agendaItem" placeholder="What should we discuss?" maxlength="300">
+                    </div>
+                    <div class="form-group">
+                        <label for="agendaBy">Your name</label>
+                        <input type="text" id="agendaBy" placeholder="Your name" maxlength="60">
+                    </div>
+                    <button class="primary" onclick="addItem()">Add Item</button>
+                </div>
+                <div id="addStatus" class="status-msg" style="display:none;"></div>
+            </div>
+
+            <div id="progressBar" class="progress-bar"></div>
+            <div id="agendaList"><p class="empty-state">Loading...</p></div>
+        </div>
+    </div>
+
+    <script src="../firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script>
+        document.getElementById('logo').onerror = function() { this.parentElement.style.display = 'none'; };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const now = new Date();
+        let currentMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+        let unsubscribe = null;
+
+        function changeMonth(dir) {
+            const [year, month] = currentMonth.split('-').map(Number);
+            const d = new Date(year, month - 1 + dir, 1);
+            currentMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+            updateMonthLabel();
+            loadItems();
+        }
+
+        function updateMonthLabel() {
+            const [year, month] = currentMonth.split('-').map(Number);
+            document.getElementById('monthLabel').textContent = `${MONTHS[month-1]} ${year}`;
+        }
+
+        function loadItems() {
+            if (unsubscribe) unsubscribe();
+            document.getElementById('agendaList').innerHTML = '<p class="empty-state">Loading...</p>';
+            document.getElementById('progressBar').style.display = 'none';
+
+            unsubscribe = db.collection('meeting-agenda')
+                .where('month', '==', currentMonth)
+                .orderBy('addedAt', 'asc')
+                .onSnapshot(snapshot => {
+                    const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderItems(items);
+                });
+        }
+
+        function renderItems(items) {
+            const list = document.getElementById('agendaList');
+            const bar = document.getElementById('progressBar');
+
+            if (items.length === 0) {
+                list.innerHTML = '<p class="empty-state">No items yet. Add one above.</p>';
+                bar.style.display = 'none';
+                return;
+            }
+
+            const doneCount = items.filter(i => i.done).length;
+            bar.textContent = `${doneCount} of ${items.length} items discussed`;
+            bar.style.display = 'block';
+
+            list.innerHTML = '<div class="agenda-list">' + items.map(item => `
+                <div class="agenda-item ${item.done ? 'done' : ''}">
+                    <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleDone('${item.id}', this.checked)">
+                    <span class="item-text ${item.done ? 'done' : ''}">${escapeHtml(item.item)}</span>
+                    <span class="item-meta">— ${escapeHtml(item.addedBy)}</span>
+                </div>
+            `).join('') + '</div>';
+        }
+
+        function addItem() {
+            const item = document.getElementById('agendaItem').value.trim();
+            const addedBy = document.getElementById('agendaBy').value.trim();
+            if (!item || !addedBy) { showStatus('Please fill in both fields.', 'error'); return; }
+
+            db.collection('meeting-agenda').add({
+                item, addedBy, month: currentMonth, done: false,
+                addedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                document.getElementById('agendaItem').value = '';
+                showStatus('Item added.', 'ok');
+            }).catch(err => showStatus('Error: ' + err.message, 'error'));
+        }
+
+        function toggleDone(id, done) {
+            db.collection('meeting-agenda').doc(id).update({ done });
+        }
+
+        function showStatus(msg, type) {
+            const el = document.getElementById('addStatus');
+            el.textContent = msg;
+            el.style.display = 'block';
+            el.style.color = type === 'error' ? '#D22630' : '#2a7a2a';
+            setTimeout(() => { el.style.display = 'none'; }, 3000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        document.getElementById('agendaItem').addEventListener('keydown', e => {
+            if (e.key === 'Enter') document.getElementById('agendaBy').focus();
+        });
+        document.getElementById('agendaBy').addEventListener('keydown', e => {
+            if (e.key === 'Enter') addItem();
+        });
+
+        updateMonthLabel();
+        loadItems();
+    </script>
+</body>
+</html>

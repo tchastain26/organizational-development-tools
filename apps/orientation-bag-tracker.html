@@ -502,11 +502,25 @@
         </div>
     </div>
 
+    <script src="../firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script>
         // Hide logo if it doesn't exist
         document.getElementById('logo').onerror = function() {
             this.style.display = 'none';
         };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const myClientId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+
+        function saveToFirestore() {
+            db.collection('bag-tracker').doc('current').set({
+                chairStates: chairStates,
+                lastClientId: myClientId
+            });
+        }
 
         const LAYOUT = [4, 4, 2, 4, 4];
         const ROWS = 6;
@@ -613,6 +627,7 @@
         function toggleChair(chairNum) {
             chairStates[chairNum] = !chairStates[chairNum];
             updateDisplay();
+            saveToFirestore();
         }
 
         function placeBags() {
@@ -628,14 +643,16 @@
             for (let i = 0; i < numTMs && i < fillPriority.length; i++) {
                 chairStates[fillPriority[i]] = true;
             }
-            
+
             updateDisplay();
+            saveToFirestore();
         }
 
         function resetAll() {
             chairStates.fill(false);
             document.getElementById('numTMs').value = '';
             updateDisplay();
+            saveToFirestore();
         }
 
         function updateDisplay() {
@@ -658,6 +675,15 @@
         window.addEventListener('load', () => {
             createSeatingLayout();
             setupScrollIndicators();
+
+            db.collection('bag-tracker').doc('current').onSnapshot(snapshot => {
+                if (!snapshot.exists) return;
+                const data = snapshot.data();
+                if (data.lastClientId !== myClientId) {
+                    chairStates = data.chairStates;
+                    updateDisplay();
+                }
+            });
         });
 
         // Setup scroll shadow indicators
