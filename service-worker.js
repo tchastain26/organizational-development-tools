@@ -1,4 +1,4 @@
-const CACHE_NAME = 'orientation-tracker-v1';
+const CACHE_NAME = 'od-tools-v1';
 const urlsToCache = [
   '/',
   '/index.html',

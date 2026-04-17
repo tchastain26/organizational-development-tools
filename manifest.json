@@ -1,8 +1,8 @@
 {
-  "name": "Ballad Health Orientation Tools",
-  "short_name": "Orientation",
-  "description": "Tools for managing Ballad Health Day One Orientation",
-  "start_url": "/orientation_bag_tracker/apps/orientation-bag-tracker.html",
+  "name": "Ballad Health OD Tools",
+  "short_name": "OD Tools",
+  "description": "Internal tools for the Ballad Health Organizational Development team",
+  "start_url": "/organizational-development-tools/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#006bb6",
